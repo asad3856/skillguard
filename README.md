@@ -46,6 +46,27 @@ skillguard scan ./some-skill --format json
 skillguard scan ./some-skill --fail-on medium
 ```
 
+### SARIF output
+
+`--format sarif` emits a SARIF 2.1.0 log (OASIS standard) for CI and code-scanning tools. Severity maps `high` → `error`, `medium` → `warning`, `low` → `note`. All 16 rules are declared in the log, each result carries its rule ID, level, message, file location, and a stable fingerprint, and remediation guidance is in each rule's help text.
+
+```bash
+skillguard scan ./some-skill --format sarif > results.sarif
+```
+
+To upload to GitHub code scanning (requires the `security-events: write` permission):
+
+```yaml
+- name: Scan skill with SkillGuard
+  run: skillguard scan ./some-skill --format sarif > results.sarif
+- name: Upload SARIF
+  uses: github/codeql-action/upload-sarif@v3
+  with:
+    sarif_file: results.sarif
+```
+
+Exit codes are the same as for the other formats, so a failing scan still fails CI unless `--fail-on never` is given. SARIF output is validated against the official SARIF 2.1.0 JSON schema in SkillGuard's own test process; uploading to a live GitHub repository was not part of that validation (see Limitations).
+
 Pin a skill you have reviewed and decided to trust:
 
 ```bash
@@ -113,6 +134,7 @@ python -m unittest discover -s tests -v
 - Binary files, files over 1 MB, and symlinked files are skipped.
 - A skill in a language or format outside the scanned extensions (`.md`, `.json`, `.yaml`, `.sh`, `.py`, and friends) will not be checked.
 - The lockfile pins content hashes; it does not verify who published the skill. Pin only after you have reviewed it.
+- SARIF output: regions carry a line number and snippet only — SkillGuard has no column information, so none is invented. File URIs are relative to the scanned directory. No numeric `security-severity` score is assigned (the rules are heuristics with no CVSS-style scoring), and no automated `fix` is emitted (a SARIF fix requires artifact changes SkillGuard cannot safely produce). SARIF was validated against the official schema locally; it has not been tested by uploading to a live GitHub code-scanning setup.
 
 ## Contributing
 

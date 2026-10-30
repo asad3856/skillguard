@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "skillguard"
-version = "0.1.0"
+version = "0.2.0"
 description = "Offline scanner and drift lock for AI agent skills: catch prompt injection, credential access, and exfiltration before you install a skill."
 readme = "README.md"
 license = { text = "MIT" }

@@ -8,6 +8,7 @@ import sys
 from pathlib import Path
 
 from .lockfile import verify_lock, write_lock
+from .sarif import to_sarif_json
 from .scanner import scan_path
 
 SEVERITY_ORDER = {"high": 0, "medium": 1, "low": 2}
@@ -42,7 +43,7 @@ def _build_parser() -> argparse.ArgumentParser:
 
     scan = sub.add_parser("scan", help="Scan a skill directory or file for risky patterns.")
     scan.add_argument("path", type=Path, help="Skill directory or file to scan")
-    scan.add_argument("--format", choices=["table", "json"], default="table")
+    scan.add_argument("--format", choices=["table", "json", "sarif"], default="table")
     scan.add_argument("--fail-on", choices=["high", "medium", "low", "never"], default="high",
                       help="Exit non-zero if a finding at or above this severity exists (default: high)")
     scan.add_argument("--allow", action="append", default=[], metavar="SG001",
@@ -66,7 +67,9 @@ def main(argv: list[str] | None = None) -> int:
             print(f"error: path does not exist: {args.path}", file=sys.stderr)
             return 2
         result = scan_path(args.path, allowlist=set(args.allow))
-        if args.format == "json":
+        if args.format == "sarif":
+            print(to_sarif_json(result))
+        elif args.format == "json":
             print(json.dumps(result.to_dict(), indent=2))
         else:
             _print_table(result)
