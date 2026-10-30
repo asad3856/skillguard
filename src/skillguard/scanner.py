@@ -124,6 +124,34 @@ RULES: tuple[Rule, ...] = (
         _re(r"(\u200b|\u200c|\u200d|\ufeff|<!--[^>]{200,})"),
         "Zero-width characters or very long hidden comments can conceal instructions. Keep skill text visible and readable.",
     ),
+    Rule(
+        "SG013",
+        "MCP server over unauthenticated HTTP",
+        "high",
+        _re(r"((mcp|url|endpoint|transport)[^\n]{0,80}http://(?!localhost\b|127\.0\.0\.1\b|\[::1\]|0\.0\.0\.0\b)|http://(?!localhost\b|127\.0\.0\.1\b|\[::1\]|0\.0\.0\.0\b)[^\s\"']*(mcp|/sse|/messages))"),
+        "An MCP endpoint served over plain http:// can be read or hijacked on the network. Use https:// (or a local socket), require authentication, and do not expose an MCP server to the network without it. Loopback URLs (localhost / 127.0.0.1 / ::1) are exempt from this rule.",
+    ),
+    Rule(
+        "SG014",
+        "MCP / agent server with broad or unauthenticated access",
+        "medium",
+        _re(r"(--dangerously-skip-permissions|dangerously-skip-permissions|allow-all|disable-?auth|no-?auth|authentication\s*:\s*false|\"auth\"\s*:\s*false|0\.0\.0\.0)"),
+        "Binding to all interfaces, skipping permissions, or disabling authentication gives any local or network caller the server's tools. Bind to localhost, require auth, and scope the tools the server exposes.",
+    ),
+    Rule(
+        "SG015",
+        "Untrusted content treated as instructions",
+        "medium",
+        _re(r"((follow|execute|obey|apply)\s+[^\n]{0,50}?(instructions?|commands?)\s+(found\s+)?(in|from|embedded\s+in)\s+[^\n]{0,40}?(web|page|tool|output|response|fetch|file|url|server|content)|treat\s+[^\n]{0,40}?(tool\s+output|server\s+response|fetched\s+content|web\s+content|output)\s+as\s+(instructions?|commands?|system\s+prompt))"),
+        "Content from a webpage, tool, or server response is untrusted data, not instructions. Treat it as data to summarise or validate, and act only on instructions the user gave directly.",
+    ),
+    Rule(
+        "SG016",
+        "MCP stdio server runs through a shell or download tool",
+        "medium",
+        _re(r"(\"command\"\s*:\s*\"(?:/[^\"/]+/)*?(sh|bash|zsh|dash|powershell(?:\.exe)?|cmd(?:\.exe)?|pwsh(?:\.exe)?)\"|\"command\"\s*:\s*\"[^\"]*\b(curl|wget)\b)"),
+        "A shell (sh/bash/powershell) or download tool (curl/wget) as an MCP command hides what will actually run and can pipe remote code into a shell. Prefer a direct command (node/python/npx with a pinned package) and inspect any shell wrapper before installing.",
+    ),
 )
 
 

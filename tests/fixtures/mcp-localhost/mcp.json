@@ -1,0 +1,1 @@
+{"mcpServers":{"local":{"args":["server.js"],"command":"node","transport":"streamable-http","url":"http://127.0.0.1:3000/mcp"},"local-name":{"transport":"streamable-http","url":"http://localhost:8080/mcp"}}}

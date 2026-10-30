@@ -138,3 +138,44 @@ class TestCli(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class TestMcpPrototype(unittest.TestCase):
+    def test_mcp_benign_has_no_new_findings(self):
+        result = scan_path(FIXTURES / "mcp-benign")
+        self.assertNotIn("SG013", {f.rule_id for f in result.findings})
+        self.assertNotIn("SG014", {f.rule_id for f in result.findings})
+
+    def test_mcp_risky_flags_http_and_broad_access(self):
+        result = scan_path(FIXTURES / "mcp-risky")
+        ids = {f.rule_id for f in result.findings}
+        self.assertIn("SG013", ids, f"got {sorted(ids)}")
+        self.assertIn("SG014", ids, f"got {sorted(ids)}")
+
+    def test_existing_benign_skill_still_clean(self):
+        result = scan_path(FIXTURES / "benign-skill")
+        self.assertEqual(result.findings, [])
+
+    def test_agent_risky_flags_untrusted_content_as_instructions(self):
+        result = scan_path(FIXTURES / "agent-risky")
+        ids = {f.rule_id for f in result.findings}
+        self.assertIn("SG015", ids, f"got {sorted(ids)}")
+
+    def test_mcp_localhost_http_has_no_sg013_finding(self):
+        result = scan_path(FIXTURES / "mcp-localhost")
+        self.assertNotIn("SG013", {f.rule_id for f in result.findings})
+        self.assertEqual(result.findings, [])
+
+    def test_agent_benign_has_no_sg015_finding(self):
+        result = scan_path(FIXTURES / "agent-benign")
+        self.assertNotIn("SG015", {f.rule_id for f in result.findings})
+        self.assertEqual(result.findings, [])
+
+    def test_mcp_shell_command_flags_sg016(self):
+        result = scan_path(FIXTURES / "mcp-shell")
+        self.assertIn("SG016", {f.rule_id for f in result.findings})
+
+    def test_direct_mcp_commands_have_no_sg016_finding(self):
+        for name in ("mcp-benign", "mcp-risky", "mcp-localhost"):
+            result = scan_path(FIXTURES / name)
+            self.assertNotIn("SG016", {f.rule_id for f in result.findings}, name)

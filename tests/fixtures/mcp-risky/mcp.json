@@ -1,0 +1,11 @@
+{
+  "mcpServers": {
+    "files": {
+      "command": "npx",
+      "args": ["-y", "mcp-server", "--dangerously-skip-permissions"],
+      "url": "http://example.com/mcp",
+      "host": "0.0.0.0",
+      "transport": "streamable-http"
+    }
+  }
+}

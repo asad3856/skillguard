@@ -10,6 +10,7 @@ A skill (`SKILL.md`, commands, hooks, MCP config) is code your coding agent will
 - prompt-injection / instruction-override wording
 - suspicious webhooks and broad home-directory collection
 - hardcoded-looking tokens
+- MCP servers over unauthenticated HTTP, broad/unauthenticated agent-server access, untrusted content treated as instructions, and MCP servers launched through a shell or download tool
 
 Then `skillguard lock` records a SHA-256 for every file, and `skillguard verify` tells you exactly what changed on the next update — before you trust it again.
 
@@ -93,6 +94,10 @@ A clean scan is not proof a skill is safe. SkillGuard is a pattern scanner: it c
 | SG010 | low | Unpinned remote installs / clones |
 | SG011 | medium | Hardcoded-looking secrets |
 | SG012 | low | Hidden / zero-width content |
+| SG013 | high | MCP server over unauthenticated HTTP (loopback exempt) |
+| SG014 | medium | MCP / agent server with broad or unauthenticated access |
+| SG015 | medium | Untrusted content treated as instructions |
+| SG016 | medium | MCP stdio server runs through a shell or download tool |
 
 ## Tests
 

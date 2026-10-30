@@ -1,0 +1,10 @@
+{
+  "mcpServers": {
+    "docs": {
+      "command": "node",
+      "args": ["server.js"],
+      "url": "https://127.0.0.1:8443/mcp",
+      "transport": "streamable-http"
+    }
+  }
+}
