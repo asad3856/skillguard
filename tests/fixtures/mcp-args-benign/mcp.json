@@ -1,0 +1,14 @@
+{
+  "mcpServers": {
+    "docs": {
+      "command": "node",
+      "args": ["server.js", "--port", "3000", "--url", "https://example.com/docs?a=1&b=2"],
+      "transport": "stdio"
+    },
+    "tools": {
+      "command": "python3",
+      "args": ["tool.py", "--name", "helper;version-2"],
+      "transport": "stdio"
+    }
+  }
+}

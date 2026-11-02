@@ -10,7 +10,7 @@ A skill (`SKILL.md`, commands, hooks, MCP config) is code your coding agent will
 - prompt-injection / instruction-override wording
 - suspicious webhooks and broad home-directory collection
 - hardcoded-looking tokens
-- MCP servers over unauthenticated HTTP, broad/unauthenticated agent-server access, untrusted content treated as instructions, and MCP servers launched through a shell or download tool
+- MCP servers over unauthenticated HTTP, broad/unauthenticated agent-server access, untrusted content treated as instructions, MCP servers launched through a shell or download tool, and shell execution in skill/MCP wrapper code
 
 Then `skillguard lock` records a SHA-256 for every file, and `skillguard verify` tells you exactly what changed on the next update — before you trust it again.
 
@@ -48,7 +48,7 @@ skillguard scan ./some-skill --fail-on medium
 
 ### SARIF output
 
-`--format sarif` emits a SARIF 2.1.0 log (OASIS standard) for CI and code-scanning tools. Severity maps `high` → `error`, `medium` → `warning`, `low` → `note`. All 16 rules are declared in the log, each result carries its rule ID, level, message, file location, and a stable fingerprint, and remediation guidance is in each rule's help text.
+`--format sarif` emits a SARIF 2.1.0 log (OASIS standard) for CI and code-scanning tools. Severity maps `high` → `error`, `medium` → `warning`, `low` → `note`. All 18 rules are declared in the log, each result carries its rule ID, level, message, file location, and a stable fingerprint, and remediation guidance is in each rule's help text.
 
 ```bash
 skillguard scan ./some-skill --format sarif > results.sarif
@@ -119,6 +119,8 @@ A clean scan is not proof a skill is safe. SkillGuard is a pattern scanner: it c
 | SG014 | medium | MCP / agent server with broad or unauthenticated access |
 | SG015 | medium | Untrusted content treated as instructions |
 | SG016 | medium | MCP stdio server runs through a shell or download tool |
+| SG017 | medium | Shell execution in skill / MCP wrapper code (`shell=True`, `os.system`, `create_subprocess_shell`, `execSync`) |
+| SG018 | high | Chained / substituted command hidden in config arguments (`&&`, `;`, `|`, `$(...)`, backticks, PowerShell `-enc`/`iex`) |
 
 ## Tests
 

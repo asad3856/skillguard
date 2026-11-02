@@ -152,6 +152,20 @@ RULES: tuple[Rule, ...] = (
         _re(r"(\"command\"\s*:\s*\"(?:/[^\"/]+/)*?(sh|bash|zsh|dash|powershell(?:\.exe)?|cmd(?:\.exe)?|pwsh(?:\.exe)?)\"|\"command\"\s*:\s*\"[^\"]*\b(curl|wget)\b)"),
         "A shell (sh/bash/powershell) or download tool (curl/wget) as an MCP command hides what will actually run and can pipe remote code into a shell. Prefer a direct command (node/python/npx with a pinned package) and inspect any shell wrapper before installing.",
     ),
+    Rule(
+        "SG017",
+        "Shell execution from skill / MCP wrapper code",
+        "medium",
+        _re(r"(shell\s*=\s*True|create_subprocess_shell\s*\(|os\.system\s*\(|os\.popen\s*\(|shell\s*:\s*true|\bexecSync\s*\(|child_process\s*\.\s*exec\s*\()"),
+        "Running a command through a shell lets injected text become a command. Prefer an argument list with no shell, and never build the command string from tool output, model output, or untrusted input.",
+    ),
+    Rule(
+        "SG018",
+        "Chained / substituted command hidden in config arguments",
+        "high",
+        _re(r"(\$\(\s*(curl|wget|sh|bash|zsh|python3?|node|powershell|pwsh)\b|`\s*(curl|wget|sh|bash|zsh|python3?|node|powershell|pwsh)\b[^`\n]*`|\|\s*(ba)?sh\b|(&&|\|\||;)\s*(curl|wget|sh|bash|zsh|powershell|pwsh|nc\b|rm\s|python3?\s+-c|node\s+-e)|powershell.{0,60}?(-enc(odedcommand)?\b|\biex\b)|Invoke-Expression|\biex\s+['\"])"),
+        "A benign-looking command can hide a second command chained with &&, ;, |, $() or backticks, or a PowerShell encoded/iex payload, in its arguments. Split it into a direct command with plain arguments and inspect every argument before installing; an MCP config whose args shell out is not safe to trust on its command name alone.",
+    ),
 )
 
 

@@ -179,3 +179,42 @@ class TestMcpPrototype(unittest.TestCase):
         for name in ("mcp-benign", "mcp-risky", "mcp-localhost"):
             result = scan_path(FIXTURES / name)
             self.assertNotIn("SG016", {f.rule_id for f in result.findings}, name)
+
+
+class TestShellExecRule(unittest.TestCase):
+    def test_shell_exec_risky_flags_sg017(self):
+        result = scan_path(FIXTURES / "shell-exec-risky")
+        ids = {f.rule_id for f in result.findings}
+        self.assertIn("SG017", ids, f"got {sorted(ids)}")
+        # At least the three Python shell forms and the JS form fire.
+        self.assertGreaterEqual(
+            sum(1 for f in result.findings if f.rule_id == "SG017"), 4
+        )
+
+    def test_shell_exec_benign_has_no_findings(self):
+        result = scan_path(FIXTURES / "shell-exec-benign")
+        self.assertEqual(result.findings, [])
+
+    def test_existing_fixtures_gain_no_sg017_finding(self):
+        for name in ("benign-skill", "mcp-benign", "mcp-localhost", "agent-benign"):
+            result = scan_path(FIXTURES / name)
+            self.assertNotIn("SG017", {f.rule_id for f in result.findings}, name)
+
+
+class TestArgsChainingRule(unittest.TestCase):
+    def test_mcp_args_risky_flags_sg018(self):
+        result = scan_path(FIXTURES / "mcp-args-risky")
+        self.assertIn("SG018", {f.rule_id for f in result.findings})
+        self.assertGreaterEqual(
+            sum(1 for f in result.findings if f.rule_id == "SG018"), 2
+        )
+
+    def test_mcp_args_benign_has_no_sg018_finding(self):
+        result = scan_path(FIXTURES / "mcp-args-benign")
+        self.assertNotIn("SG018", {f.rule_id for f in result.findings})
+        self.assertEqual(result.findings, [])
+
+    def test_existing_fixtures_gain_no_sg018_finding(self):
+        for name in ("benign-skill", "mcp-benign", "mcp-localhost", "agent-benign", "shell-exec-benign"):
+            result = scan_path(FIXTURES / name)
+            self.assertNotIn("SG018", {f.rule_id for f in result.findings}, name)
