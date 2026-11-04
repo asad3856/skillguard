@@ -218,3 +218,19 @@ class TestArgsChainingRule(unittest.TestCase):
         for name in ("benign-skill", "mcp-benign", "mcp-localhost", "agent-benign", "shell-exec-benign"):
             result = scan_path(FIXTURES / name)
             self.assertNotIn("SG018", {f.rule_id for f in result.findings}, name)
+
+
+class TestHistoryUploadRule(unittest.TestCase):
+    def test_history_upload_risky_flags_sg019(self):
+        result = scan_path(FIXTURES / "history-upload-risky")
+        self.assertIn("SG019", {f.rule_id for f in result.findings})
+
+    def test_history_upload_benign_has_no_findings(self):
+        result = scan_path(FIXTURES / "history-upload-benign")
+        self.assertNotIn("SG019", {f.rule_id for f in result.findings})
+        self.assertEqual(result.findings, [])
+
+    def test_existing_fixtures_gain_no_sg019_finding(self):
+        for name in ("benign-skill", "mcp-benign", "mcp-localhost", "agent-benign", "shell-exec-benign", "mcp-args-benign"):
+            result = scan_path(FIXTURES / name)
+            self.assertNotIn("SG019", {f.rule_id for f in result.findings}, name)

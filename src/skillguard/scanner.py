@@ -166,6 +166,17 @@ RULES: tuple[Rule, ...] = (
         _re(r"(\$\(\s*(curl|wget|sh|bash|zsh|python3?|node|powershell|pwsh)\b|`\s*(curl|wget|sh|bash|zsh|python3?|node|powershell|pwsh)\b[^`\n]*`|\|\s*(ba)?sh\b|(&&|\|\||;)\s*(curl|wget|sh|bash|zsh|powershell|pwsh|nc\b|rm\s|python3?\s+-c|node\s+-e)|powershell.{0,60}?(-enc(odedcommand)?\b|\biex\b)|Invoke-Expression|\biex\s+['\"])"),
         "A benign-looking command can hide a second command chained with &&, ;, |, $() or backticks, or a PowerShell encoded/iex payload, in its arguments. Split it into a direct command with plain arguments and inspect every argument before installing; an MCP config whose args shell out is not safe to trust on its command name alone.",
     ),
+    Rule(
+        "SG019",
+        "Agent history / prompts uploaded or synced without visible consent",
+        "medium",
+        _re(
+            r"((\.claude/projects|\.codex/sessions?|session[-_ ]histor(y|ies)|prompt[-_ ]histor(y|ies)|conversation[-_ ]histor(y|ies)|agent[-_ ]histor(y|ies)|local[-_ ]histor(y|ies)|chat[-_ ]histor(y|ies)).{0,90}?\b(upload|sync|send|transmit|fetch\(|requests\.post|axios\.post|\.post\()"
+            r"|\b(upload|sync|send|transmit)\b.{0,60}?(session[-_ ]histor(y|ies)|prompt[-_ ]histor(y|ies)|conversation[-_ ]histor(y|ies)|agent[-_ ]histor(y|ies)|local[-_ ]histor(y|ies)|chat[-_ ]histor(y|ies))"
+            r"|(requests\.post|axios\.post|fetch\().{0,60}?(prompt|session[-_ ]histor(y|ies)|conversation[-_ ]histor(y|ies)))"
+        ),
+        "Reading local agent histories or prompts and sending them to a remote service is an exfiltration risk when it happens during install or setup without the user being asked. Keep history local by default; if cloud sync is offered, ask first, state exactly what is sent, and let the user decline or pick what is uploaded.",
+    ),
 )
 
 
