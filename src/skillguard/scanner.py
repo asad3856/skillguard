@@ -177,6 +177,20 @@ RULES: tuple[Rule, ...] = (
         ),
         "Reading local agent histories or prompts and sending them to a remote service is an exfiltration risk when it happens during install or setup without the user being asked. Keep history local by default; if cloud sync is offered, ask first, state exactly what is sent, and let the user decline or pick what is uploaded.",
     ),
+    Rule(
+        "SG020",
+        "Computer-use screen / clipboard capture or headed input",
+        "medium",
+        _re(
+            r"(agent-desktop\s+(snapshot|screenshot|clipboard-get)\b"
+            r"|agent-desktop[^\n]{0,80}?--headed\b"
+            r"|desktop_(snapshot|screenshot|clipboard_get|clipboard-get|click|double-click|type|press|set-value)\b"
+            r"|\b(pyperclip\.paste|pyautogui\.screenshot|ImageGrab\.grab|GetClipboardData|pbpaste|clipboard\.readText|navigator\.clipboard\.read|screencapture)\b"
+            r"|xclip\s+[^\n#]*-o\b"
+            r"|([\"']headed[\"']\s*:\s*true|headed\s*=\s*True))"
+        ),
+        "Screen snapshots, screenshots, and clipboard reads can contain passwords and private desktop content, and headed input performs real clicks and typing. Keep captures local and out of logs and uploads, require explicit user approval before headed actions, and state exactly what is captured and where it goes.",
+    ),
 )
 
 

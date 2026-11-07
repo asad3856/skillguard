@@ -48,7 +48,7 @@ skillguard scan ./some-skill --fail-on medium
 
 ### SARIF output
 
-`--format sarif` emits a SARIF 2.1.0 log (OASIS standard) for CI and code-scanning tools. Severity maps `high` → `error`, `medium` → `warning`, `low` → `note`. All 19 rules are declared in the log, each result carries its rule ID, level, message, file location, and a stable fingerprint, and remediation guidance is in each rule's help text.
+`--format sarif` emits a SARIF 2.1.0 log (OASIS standard) for CI and code-scanning tools. Severity maps `high` → `error`, `medium` → `warning`, `low` → `note`. All 20 rules are declared in the log, each result carries its rule ID, level, message, file location, and a stable fingerprint, and remediation guidance is in each rule's help text.
 
 ```bash
 skillguard scan ./some-skill --format sarif > results.sarif
@@ -122,6 +122,7 @@ A clean scan is not proof a skill is safe. SkillGuard is a pattern scanner: it c
 | SG017 | medium | Shell execution in skill / MCP wrapper code (`shell=True`, `os.system`, `create_subprocess_shell`, `execSync`) |
 | SG018 | high | Chained / substituted command hidden in config arguments (`&&`, `;`, `|`, `$(...)`, backticks, PowerShell `-enc`/`iex`) |
 | SG019 | medium | Agent history / prompts uploaded or synced without visible consent |
+| SG020 | medium | Computer-use screen / clipboard capture or headed input |
 
 ## Tests
 
@@ -135,6 +136,7 @@ python -m unittest discover -s tests -v
 
 - Text-pattern scanning only. It does not execute code, resolve URLs, or understand intent.
 - SG019 is single-line only and cannot tell whether consent was asked in a UI step or another file, so a consented sync described on one line may still flag, prose mentioning an upload plus history may flag, and a history read and upload split across lines may be missed. A flag means "check whether the user was asked", not proof of exfiltration.
+- SG020 is single-line only and fires only on concrete computer-use commands, tool names, or capture APIs — plain prose about taking a screenshot does not flag. It cannot tell whether a capture stayed local or the user approved a headed action described elsewhere, and a capture and an upload split across lines may be missed. A flag means "check what is captured and where it goes", not proof of exfiltration.
 - Binary files, files over 1 MB, and symlinked files are skipped.
 - A skill in a language or format outside the scanned extensions (`.md`, `.json`, `.yaml`, `.sh`, `.py`, and friends) will not be checked.
 - The lockfile pins content hashes; it does not verify who published the skill. Pin only after you have reviewed it.

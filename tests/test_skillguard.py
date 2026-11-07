@@ -234,3 +234,22 @@ class TestHistoryUploadRule(unittest.TestCase):
         for name in ("benign-skill", "mcp-benign", "mcp-localhost", "agent-benign", "shell-exec-benign", "mcp-args-benign"):
             result = scan_path(FIXTURES / name)
             self.assertNotIn("SG019", {f.rule_id for f in result.findings}, name)
+
+
+class TestComputerUseRule(unittest.TestCase):
+    def test_computer_use_risky_flags_sg020(self):
+        result = scan_path(FIXTURES / "computer-use-risky")
+        self.assertIn("SG020", {f.rule_id for f in result.findings})
+        self.assertGreaterEqual(
+            sum(1 for f in result.findings if f.rule_id == "SG020"), 3
+        )
+
+    def test_computer_use_benign_has_no_findings(self):
+        result = scan_path(FIXTURES / "computer-use-benign")
+        self.assertNotIn("SG020", {f.rule_id for f in result.findings})
+        self.assertEqual(result.findings, [])
+
+    def test_existing_fixtures_gain_no_sg020_finding(self):
+        for name in ("benign-skill", "mcp-benign", "mcp-localhost", "agent-benign", "shell-exec-benign", "mcp-args-benign", "history-upload-benign", "history-upload-risky"):
+            result = scan_path(FIXTURES / name)
+            self.assertNotIn("SG020", {f.rule_id for f in result.findings}, name)
