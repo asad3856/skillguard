@@ -253,3 +253,22 @@ class TestComputerUseRule(unittest.TestCase):
         for name in ("benign-skill", "mcp-benign", "mcp-localhost", "agent-benign", "shell-exec-benign", "mcp-args-benign", "history-upload-benign", "history-upload-risky"):
             result = scan_path(FIXTURES / name)
             self.assertNotIn("SG020", {f.rule_id for f in result.findings}, name)
+
+
+class TestRuntimeInspectionRule(unittest.TestCase):
+    def test_runtime_inspection_risky_flags_sg021(self):
+        result = scan_path(FIXTURES / "runtime-inspection-risky")
+        self.assertIn("SG021", {f.rule_id for f in result.findings})
+        self.assertGreaterEqual(
+            sum(1 for f in result.findings if f.rule_id == "SG021"), 3
+        )
+
+    def test_runtime_inspection_benign_has_no_findings(self):
+        result = scan_path(FIXTURES / "runtime-inspection-benign")
+        self.assertNotIn("SG021", {f.rule_id for f in result.findings})
+        self.assertEqual(result.findings, [])
+
+    def test_existing_fixtures_gain_no_sg021_finding(self):
+        for name in ("benign-skill", "mcp-benign", "mcp-localhost", "agent-benign", "shell-exec-benign", "mcp-args-benign", "history-upload-benign", "history-upload-risky", "computer-use-benign", "computer-use-risky"):
+            result = scan_path(FIXTURES / name)
+            self.assertNotIn("SG021", {f.rule_id for f in result.findings}, name)

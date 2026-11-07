@@ -191,6 +191,21 @@ RULES: tuple[Rule, ...] = (
         ),
         "Screen snapshots, screenshots, and clipboard reads can contain passwords and private desktop content, and headed input performs real clicks and typing. Keep captures local and out of logs and uploads, require explicit user approval before headed actions, and state exactly what is captured and where it goes.",
     ),
+    Rule(
+        "SG021",
+        "Dynamic instrumentation / runtime inspection of processes, traffic, or devices",
+        "medium",
+        _re(
+            r"(\bfrida(-trace)?\b|frida\.attach\b|Java\.perform\s*\("
+            r"|gdb\s+[^\n]{0,40}?(-p\b|--pid\b)|lldb\s+[^\n]{0,40}?(-p\b|--attach-pid\b)"
+            r"|/proc/\S*mem\b|\bReadProcessMemory\b|ptrace\s*\(|\bgcore\b|\bprocdump\b"
+            r"|strace\s+[^\n]{0,40}?-p\b"
+            r"|\b(tcpdump|tshark|mitmproxy|mitmdump|dumpcap)\b"
+            r"|adb\s+(shell|pull|backup|logcat)\b"
+            r"|\b(jadx|apktool)\b)"
+        ),
+        "Attaching to a live process, dumping its memory, intercepting its traffic, or pulling data off a device can expose secrets and private data from software you do not own. Only inspect processes, apps, and devices you own or are authorised to examine, keep any memory or traffic captures local and out of logs and uploads, and state exactly what is captured and where it goes.",
+    ),
 )
 
 
