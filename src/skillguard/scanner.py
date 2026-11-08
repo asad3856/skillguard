@@ -206,6 +206,17 @@ RULES: tuple[Rule, ...] = (
         ),
         "Attaching to a live process, dumping its memory, intercepting its traffic, or pulling data off a device can expose secrets and private data from software you do not own. Only inspect processes, apps, and devices you own or are authorised to examine, keep any memory or traffic captures local and out of logs and uploads, and state exactly what is captured and where it goes.",
     ),
+    Rule(
+        "SG022",
+        "Browser-automation session / credential capture or live-browser attach",
+        "medium",
+        _re(
+            r"(agent-browser\s+(snapshot|cookies|storage|auth|state|profiles|eval|screenshot|record|download|upload|clipboard|network)\b"
+            r"|agent-browser[^\n]{0,80}?--(cdp|auto-connect)\b"
+            r"|\bremote-debugging-port\b)"
+        ),
+        "Browser-automation commands can read session cookies, saved logins, and page content from a logged-in browser, and attaching to a live browser reaches every site that browser is signed into. Only automate browsers and profiles you own or are authorised to use, keep cookies, auth state, screenshots, and captures local and out of logs and uploads, and state exactly what is captured and where it goes.",
+    ),
 )
 
 
