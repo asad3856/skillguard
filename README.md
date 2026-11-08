@@ -48,7 +48,7 @@ skillguard scan ./some-skill --fail-on medium
 
 ### SARIF output
 
-`--format sarif` emits a SARIF 2.1.0 log (OASIS standard) for CI and code-scanning tools. Severity maps `high` → `error`, `medium` → `warning`, `low` → `note`. All 22 rules are declared in the log, each result carries its rule ID, level, message, file location, and a stable fingerprint, and remediation guidance is in each rule's help text.
+`--format sarif` emits a SARIF 2.1.0 log (OASIS standard) for CI and code-scanning tools. Severity maps `high` → `error`, `medium` → `warning`, `low` → `note`. All 23 rules are declared in the log, each result carries its rule ID, level, message, file location, and a stable fingerprint, and remediation guidance is in each rule's help text.
 
 ```bash
 skillguard scan ./some-skill --format sarif > results.sarif
@@ -125,6 +125,7 @@ A clean scan is not proof a skill is safe. SkillGuard is a pattern scanner: it c
 | SG020 | medium | Computer-use screen / clipboard capture or headed input |
 | SG021 | medium | Dynamic instrumentation / runtime inspection of processes, traffic, or devices (Frida, debugger attach, memory dump, packet capture, `adb pull`, APK decompile) |
 | SG022 | medium | Browser-automation session / credential capture or live-browser attach (`agent-browser cookies`/`storage`/`auth`/`eval`/`screenshot`/`upload`, `--cdp` attach, `--remote-debugging-port`) |
+| SG023 | medium | Desktop notification content read or acted on (`agent-desktop list-notifications`/`dismiss-notification`/`notification-action`, `desktop_list_notifications` MCP tool) |
 
 ## Tests
 
@@ -141,6 +142,7 @@ python -m unittest discover -s tests -v
 - SG020 is single-line only and fires only on concrete computer-use commands, tool names, or capture APIs — plain prose about taking a screenshot does not flag. It cannot tell whether a capture stayed local or the user approved a headed action described elsewhere, and a capture and an upload split across lines may be missed. A flag means "check what is captured and where it goes", not proof of exfiltration.
 - SG021 is single-line only and fires only on concrete instrumentation commands and tool names (Frida, debugger attach, memory dump, packet capture, device pull, APK decompile) — plain prose about inspecting an app does not flag. It cannot tell whether the target is software you own or are authorised to examine, whether a capture stayed local, or whether consent was given elsewhere. A flag means "check what is inspected and where the results go", not proof of wrongdoing; legitimate security research on your own software will flag and should be reviewed, not blocked.
 - SG022 is single-line only and fires only on concrete browser-automation commands (`agent-browser` capture/session subcommands, `--cdp`/`--auto-connect` attach, `--remote-debugging-port`) — plain prose about browsing a site, and ordinary `open`/`click`/`fill` navigation, do not flag. It cannot tell whether the browser or profile is yours, whether a capture stayed local, or whether consent was given elsewhere. A flag means "check what session data is captured and where it goes", not proof of exfiltration; legitimate automation of your own logged-in browser will flag and should be reviewed, not blocked.
+- SG023 is single-line only and fires only on concrete notification commands (`agent-desktop` notification subcommands and the matching `desktop_*` MCP tools) — plain prose about notifying the user, and ordinary `status`/`version`/`list-apps` commands, do not flag. It cannot tell whether the notification belongs to the user, whether its content stayed local, or whether consent was given elsewhere. A flag means "check what notification content is read or acted on and where it goes", not proof of wrongdoing; legitimate handling of your own notifications will flag and should be reviewed, not blocked.
 - Binary files, files over 1 MB, and symlinked files are skipped.
 - A skill in a language or format outside the scanned extensions (`.md`, `.json`, `.yaml`, `.sh`, `.py`, and friends) will not be checked.
 - The lockfile pins content hashes; it does not verify who published the skill. Pin only after you have reviewed it.

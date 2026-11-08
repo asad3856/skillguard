@@ -292,3 +292,23 @@ class TestBrowserAutomationRule(unittest.TestCase):
         for name in ("benign-skill", "mcp-benign", "mcp-localhost", "agent-benign", "shell-exec-benign", "mcp-args-benign", "history-upload-benign", "history-upload-risky", "computer-use-benign", "computer-use-risky", "runtime-inspection-benign", "runtime-inspection-risky"):
             result = scan_path(FIXTURES / name)
             self.assertNotIn("SG022", {f.rule_id for f in result.findings}, name)
+
+
+class TestNotificationRule(unittest.TestCase):
+    def test_notification_risky_flags_sg023(self):
+        result = scan_path(FIXTURES / "notification-risky")
+        self.assertIn("SG023", {f.rule_id for f in result.findings})
+        self.assertEqual(
+            sum(1 for f in result.findings if f.rule_id == "SG023"), 8
+        )
+        self.assertEqual(len(result.findings), 8)
+
+    def test_notification_benign_has_no_findings(self):
+        result = scan_path(FIXTURES / "notification-benign")
+        self.assertNotIn("SG023", {f.rule_id for f in result.findings})
+        self.assertEqual(result.findings, [])
+
+    def test_existing_fixtures_gain_no_sg023_finding(self):
+        for name in ("benign-skill", "mcp-benign", "mcp-localhost", "agent-benign", "shell-exec-benign", "mcp-args-benign", "history-upload-benign", "history-upload-risky", "computer-use-benign", "computer-use-risky", "runtime-inspection-benign", "runtime-inspection-risky", "browser-automation-benign", "browser-automation-risky"):
+            result = scan_path(FIXTURES / name)
+            self.assertNotIn("SG023", {f.rule_id for f in result.findings}, name)

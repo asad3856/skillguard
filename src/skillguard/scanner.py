@@ -217,6 +217,16 @@ RULES: tuple[Rule, ...] = (
         ),
         "Browser-automation commands can read session cookies, saved logins, and page content from a logged-in browser, and attaching to a live browser reaches every site that browser is signed into. Only automate browsers and profiles you own or are authorised to use, keep cookies, auth state, screenshots, and captures local and out of logs and uploads, and state exactly what is captured and where it goes.",
     ),
+    Rule(
+        "SG023",
+        "Desktop notification content read or acted on",
+        "medium",
+        _re(
+            r"(agent-desktop\s+(list-notifications|dismiss-notification|dismiss-all-notifications|notification-action)\b"
+            r"|\bdesktop_(list_notifications|dismiss_notification|dismiss_all_notifications|notification_action)\b)"
+        ),
+        "Desktop notifications can carry message previews, one-time codes, and other private content, and acting on one can reply to or dismiss something the user has not seen. Only read or act on notifications you own or are authorised to handle, keep notification content local and out of logs and uploads, and state exactly what is read and where it goes.",
+    ),
 )
 
 
