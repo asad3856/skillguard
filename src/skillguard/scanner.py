@@ -227,6 +227,17 @@ RULES: tuple[Rule, ...] = (
         ),
         "Desktop notifications can carry message previews, one-time codes, and other private content, and acting on one can reply to or dismiss something the user has not seen. Only read or act on notifications you own or are authorised to handle, keep notification content local and out of logs and uploads, and state exactly what is read and where it goes.",
     ),
+    Rule(
+        "SG024",
+        "OSINT username enumeration across social networks",
+        "medium",
+        _re(
+            r"(\bsherlock\s+(?!holmes\b)(--[a-z][\w-]*|[a-z0-9_][\w.\-]{1,})"
+            r"|\b(pipx\s+install|pip\s+install|uv\s+tool\s+install)[^\n]{0,40}?sherlock-project\b"
+            r"|\bsherlock/sherlock\b)"
+        ),
+        "Running a username-enumeration tool checks one person's handle against hundreds of social networks and writes the matches to a file -- that is personal data about a real person. Only look up usernames you own or are authorised to investigate, keep the results local and out of logs and uploads, and state exactly whose username is checked and where the results go.",
+    ),
 )
 
 

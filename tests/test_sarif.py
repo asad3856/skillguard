@@ -59,7 +59,7 @@ class TestSarifStructure(unittest.TestCase):
         doc = to_sarif(_result_with())
         rules = doc["runs"][0]["tool"]["driver"]["rules"]
         self.assertEqual([r["id"] for r in rules], [r.rule_id for r in RULES])
-        self.assertEqual(len(rules), 23)
+        self.assertEqual(len(rules), 24)
         for rule, descriptor in zip(RULES, rules):
             self.assertEqual(descriptor["name"], rule.rule_id)
             self.assertEqual(descriptor["shortDescription"]["text"], rule.title)
@@ -211,7 +211,7 @@ class TestEmptyAndSpecialCharacters(unittest.TestCase):
         doc = to_sarif(_result_with(files_scanned=0, root="/tmp/empty"))
         run = doc["runs"][0]
         self.assertEqual(run["results"], [])
-        self.assertEqual(len(run["tool"]["driver"]["rules"]), 23)
+        self.assertEqual(len(run["tool"]["driver"]["rules"]), 24)
         self.assertEqual(run["properties"]["skillguard/filesScanned"], 0)
 
     def test_special_characters_round_trip(self):
@@ -253,7 +253,7 @@ class TestMalformedInputs(unittest.TestCase):
         finding = _finding(rule_id="SG999", title="Mystery rule", severity="low")
         doc = to_sarif(_result_with(finding))
         run = doc["runs"][0]
-        self.assertEqual(len(run["tool"]["driver"]["rules"]), 24)
+        self.assertEqual(len(run["tool"]["driver"]["rules"]), 25)
         result = run["results"][0]
         self.assertEqual(result["ruleId"], "SG999")
         self.assertEqual(result["level"], "note")

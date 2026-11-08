@@ -308,6 +308,25 @@ class TestNotificationRule(unittest.TestCase):
         self.assertNotIn("SG023", {f.rule_id for f in result.findings})
         self.assertEqual(result.findings, [])
 
+class TestOsintRule(unittest.TestCase):
+    def test_osint_risky_flags_sg024(self):
+        result = scan_path(FIXTURES / "osint-enumeration-risky")
+        self.assertIn("SG024", {f.rule_id for f in result.findings})
+        self.assertEqual(
+            sum(1 for f in result.findings if f.rule_id == "SG024"), 8
+        )
+        self.assertEqual(len(result.findings), 8)
+
+    def test_osint_benign_has_no_findings(self):
+        result = scan_path(FIXTURES / "osint-enumeration-benign")
+        self.assertNotIn("SG024", {f.rule_id for f in result.findings})
+        self.assertEqual(result.findings, [])
+
+    def test_existing_fixtures_gain_no_sg024_finding(self):
+        for name in ("benign-skill", "mcp-benign", "mcp-localhost", "agent-benign", "shell-exec-benign", "mcp-args-benign", "history-upload-benign", "history-upload-risky", "computer-use-benign", "computer-use-risky", "runtime-inspection-benign", "runtime-inspection-risky", "browser-automation-benign", "browser-automation-risky", "notification-benign", "notification-risky"):
+            result = scan_path(FIXTURES / name)
+            self.assertNotIn("SG024", {f.rule_id for f in result.findings}, name)
+
     def test_existing_fixtures_gain_no_sg023_finding(self):
         for name in ("benign-skill", "mcp-benign", "mcp-localhost", "agent-benign", "shell-exec-benign", "mcp-args-benign", "history-upload-benign", "history-upload-risky", "computer-use-benign", "computer-use-risky", "runtime-inspection-benign", "runtime-inspection-risky", "browser-automation-benign", "browser-automation-risky"):
             result = scan_path(FIXTURES / name)
