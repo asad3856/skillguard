@@ -238,6 +238,22 @@ RULES: tuple[Rule, ...] = (
         ),
         "Running a username-enumeration tool checks one person's handle against hundreds of social networks and writes the matches to a file -- that is personal data about a real person. Only look up usernames you own or are authorised to investigate, keep the results local and out of logs and uploads, and state exactly whose username is checked and where the results go.",
     ),
+    Rule(
+        "SG026",
+        "Traffic-intercepting proxy or vendor-gateway install",
+        "medium",
+        _re(
+            r"(\bbillion-context\b"
+            r"|(^|\s)`?bili(\s|$)"
+            r"|/bili/"
+            r"|\bcaveman-ai\b"
+            r"|\bnpx\s+skills\s+add\b[^\n]{0,80}?(?:\s-g\b|\s--global\b)"
+            r"|\bcli-hub\s+install\b"
+            r"|\bcli-anything-hub\b"
+            r"|\bx-cave-upstream-key\b)"
+        ),
+        "A skill that installs a traffic-intercepting proxy, a global skills package, a CLI-installing hub, or a vendor gateway -- or forwards your provider key through one -- routes your prompts and responses (and possibly secrets) through a third party. Install proxies and gateways only from sources you have reviewed, keep traffic local unless you meant to share it, and never forward a provider key to a gateway you did not choose. Project-scoped `npx skills add` (no -g) is not flagged here; SG010 still notes it at LOW.",
+    ),
 )
 
 

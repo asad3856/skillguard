@@ -331,3 +331,41 @@ class TestOsintRule(unittest.TestCase):
         for name in ("benign-skill", "mcp-benign", "mcp-localhost", "agent-benign", "shell-exec-benign", "mcp-args-benign", "history-upload-benign", "history-upload-risky", "computer-use-benign", "computer-use-risky", "runtime-inspection-benign", "runtime-inspection-risky", "browser-automation-benign", "browser-automation-risky"):
             result = scan_path(FIXTURES / name)
             self.assertNotIn("SG023", {f.rule_id for f in result.findings}, name)
+
+
+class TestProxyInstallRule(unittest.TestCase):
+    def test_proxy_install_risky_flags_sg026(self):
+        result = scan_path(FIXTURES / "proxy-install-risky")
+        self.assertIn("SG026", {f.rule_id for f in result.findings})
+        self.assertEqual(
+            sum(1 for f in result.findings if f.rule_id == "SG026"), 8
+        )
+        self.assertEqual(len(result.findings), 8)
+
+    def test_proxy_install_benign_has_no_sg026(self):
+        result = scan_path(FIXTURES / "proxy-install-benign")
+        self.assertNotIn("SG026", {f.rule_id for f in result.findings})
+        # The file is not fully clean on purpose: the two project-scoped
+        # `npx skills add` lines are still noted by SG010 at LOW, and the
+        # mitmproxy line by SG021. SG026 itself stays silent on all of them.
+        self.assertEqual(
+            {f.rule_id for f in result.findings}, {"SG010", "SG021"}
+        )
+        self.assertEqual(len(result.findings), 3)
+
+    def test_gateway_install_cofire_flags_sg026(self):
+        # Install commands that SG010 also flags (unpinned remote install):
+        # SG026 must fire on them too, at its own severity.
+        result = scan_path(FIXTURES / "proxy-install-cofire")
+        self.assertEqual(
+            sum(1 for f in result.findings if f.rule_id == "SG026"), 4
+        )
+        self.assertEqual(
+            sum(1 for f in result.findings if f.rule_id == "SG010"), 4
+        )
+        self.assertEqual(len(result.findings), 8)
+
+    def test_existing_fixtures_gain_no_sg026_finding(self):
+        for name in ("benign-skill", "mcp-benign", "mcp-localhost", "agent-benign", "agent-risky", "shell-exec-benign", "shell-exec-risky", "mcp-args-benign", "mcp-args-risky", "mcp-risky", "mcp-shell", "history-upload-benign", "history-upload-risky", "computer-use-benign", "computer-use-risky", "runtime-inspection-benign", "runtime-inspection-risky", "browser-automation-benign", "browser-automation-risky", "notification-benign", "notification-risky", "osint-enumeration-benign", "osint-enumeration-risky", "malicious-skill"):
+            result = scan_path(FIXTURES / name)
+            self.assertNotIn("SG026", {f.rule_id for f in result.findings}, name)
